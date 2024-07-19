@@ -1,6 +1,5 @@
 'use client';
 import { createClient } from '@/utils/supabase/client';
-import type { NextPage } from 'next';
 import { redirect } from 'next/navigation';
 import { useState } from 'react';
 import GoToDashboard from '../components/GoToDashboard';
@@ -10,13 +9,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
 
 const formSchema = z.object({
 	email: z.string().email(),
 	password: z.string().min(3),
 })
 
-const Login: NextPage = () => {
+const Login = () => {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -59,31 +60,42 @@ const Login: NextPage = () => {
 	}
 
 	return (
-		<div>
-			<Form {...form}>
-				<form onSubmit={form.handleSubmit(handleSubmit)}>
-					<FormField control={form.control} name='email' render={({ field }) => {
-						return <FormItem>
-							<FormLabel>Email</FormLabel>
-							<FormControl >
-								<Input {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					}} />
-					<FormField control={form.control} name='password' render={({ field }) => {
-						return <FormItem>
-							<FormLabel>Password</FormLabel>
-							<FormControl >
-								<Input {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					}} />
-					<Button type='submit'>Login</Button>
+		<div className='content-center self-center justify-cente'>
+			<Card className='w-[350px] ml-[35%] mt-[100px]'>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(handleSubmit)}>
+						<CardHeader><CardTitle>Login</CardTitle></CardHeader>
+						<CardContent>
+							<FormField control={form.control} name='email' render={({ field }) => {
+								return <FormItem>
+									<FormLabel>Email</FormLabel>
+									<FormControl >
+										<Input {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							}} />
+							<FormField control={form.control} name='password' render={({ field }) => {
+								return <FormItem>
+									<FormLabel>Password</FormLabel>
+									<FormControl >
+										<Input {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							}} />
 
-				</form>
-			</Form>
+						</CardContent>
+						<CardFooter className='flex justify-between'>
+							<Link href="/signup">
+								<Button variant="outline">Sign Up</Button>
+							</Link>
+							<Button type='submit'>Login</Button>
+						</CardFooter>
+					</form>
+				</Form>
+
+			</Card>
 		</div>
 	);
 };

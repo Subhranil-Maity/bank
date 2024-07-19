@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import React from 'react';
 
-const Dashboard = async () => {
+export default async function Dashboard(){
 	revalidatePath('/dashboard');
 	const supabase = createClient();
 	return (
@@ -14,4 +14,3 @@ const Dashboard = async () => {
 	);
 };
 
-export default Dashboard;
