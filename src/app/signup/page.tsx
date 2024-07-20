@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { ResisterUserZSchema } from '@/schema/ResisterUser';
@@ -9,9 +9,17 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { createClient } from '@/utils/supabase/client';
+import SignUpDialog from '../components/SignUpDialog';
+import ConfirmEmailDialog from '../components/ConfirmEmailDialog';
 
 
 const Signup = () => {
+	const [submited, setSubmited] = useState(false)
+	const [hasSignedUp, setHasSignedUp] = useState(false)
+	const [content, setContent] = useState('')
+	const [error, setError] = useState('')
+	const [openSuccessDialog, setOpenSuccessDialog] = useState(false)
 	const form = useForm<z.infer<typeof ResisterUserZSchema>>({
 		resolver: zodResolver(ResisterUserZSchema),
 		defaultValues: {
@@ -26,10 +34,38 @@ const Signup = () => {
 	})
 
 	const handleSubmit = async (value: z.infer<typeof ResisterUserZSchema>) => {
-		console.log(value)
+		setSubmited(true)
+		const data = {
+			email: value.email,
+			password: value.password,
+			address: value.address,
+			phone: value.phone,
+			firstname: value.firstname,
+			lastname: value.lastname,
+		}
+		setContent('Connecting To Server')
+		const supabase = createClient()
+		setContent('Creating Your Account')
+		const { error } = await supabase.auth.signUp({
+			email: value.email,
+			password: value.password,
+		})
+		if (error) {
+			// alert(error.message)
+			setError(error.message)
+			return
+		}else{
+			setHasSignedUp(true)
+			setContent('Account Created')
+			setOpenSuccessDialog(true)
+		}
+		setSubmited(false)
+		setError('')
 	}
 	return (
 		<div className='content-center self-center justify-cente'>
+		<SignUpDialog hasSignedUp={hasSignedUp} submitted={submited} setSubmitted={setSubmited} content={content} error={error}/>
+		<ConfirmEmailDialog open={openSuccessDialog} setOpen={setOpenSuccessDialog}/>
 			<Card className='w-[350px] ml-[35%] mt-[0.25rem]'>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)}>
@@ -105,10 +141,10 @@ const Signup = () => {
 							}} />
 						</CardContent>
 						<CardFooter className='flex justify-between'>
-								<Link href="/login">
-									<Button variant="outline">Sign In</Button>
-								</Link>
-								<Button type='submit'>Sign Up</Button>
+							<Link href="/login">
+								<Button variant="outline">Sign In</Button>
+							</Link>
+							<Button type='submit' >Sign Up</Button>
 						</CardFooter>
 					</form>
 				</Form>
